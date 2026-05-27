@@ -1,0 +1,14 @@
+[project]
+name = "reafs-analysis"
+version = "0.1.0"
+description = "Analysis and plotting tools for ReAFS"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "reafs",
+]
+
+[tool.uv.sources]
+reafs = { path = "../reafs" }

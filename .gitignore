@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.vscode
+
+# Others
+results/
+obsolete/
+others/
+svg_composer/
+
+ForwardStepCandidates_2.py
+loo_q2.py
+
