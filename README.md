@@ -63,5 +63,6 @@ python script_name.py
 
 Results and generated figures are saved to the `results/` directory.
 
-
+## Acknowledgments
+This project was created as part of NCCR Catalysis (grant number 225147), a National Centre of Competence in Research funded by the Swiss National Science Foundation. 
 
