@@ -8,7 +8,7 @@ This repository contains the analysis code to reproduce the results and plots fr
 
 - Python 3.12 or higher
 - [uv](https://docs.astral.sh/uv/) (recommended) or pip
-- [reafs](github.com)
+- [reafs](https://github.com/lcmd-epfl/reafs)
 - ipykernel
 - ipywidgets
 
