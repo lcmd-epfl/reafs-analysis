@@ -24,7 +24,7 @@ uv sync
 
 #### Notes
 
-The [reafs](github.com) package is expected to be located in the parent directory. Modify `pyproject.toml` accordingly.
+The [reafs](https://github.com/lcmd-epfl/reafs) package is expected to be located in the parent directory. Modify `pyproject.toml` accordingly.
 
 
 ## Main Scripts
