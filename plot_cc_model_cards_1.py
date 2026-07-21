@@ -136,7 +136,7 @@ selected_features_schoepfer = ["nbo-", "fbonhq3", "f1chi"]
 # selected_features_schoepfer = ['nbo-', 'f0chiv', 'bonhh3', 'fbonhh6'] # a1
 # selected_features_schoepfer = ['s1chi', 'k_ups', 'onh_t', 'k_phial', 'b_vol'] # b1
 
-fancy_names_lau = ["Pol", "$NBO_{N1}$", "$NBO_{N4}$"]
+fancy_names_lau = ["Pol", "$NBO_{N1}$", "$NBO_{C4}$"]
 fancy_names_wang = ["$q_{Ni}$", "$d_{N-Ni}$", "$d_{Ni-I}$"]
 fancy_names_schoepfer = ["$\\Delta NBO$", "$\\hat{Q}^{3}_{Bur.}$", "$^{1}\\hat{\\chi}$"]
 # fancy_names_schoepfer = ["$^{0}\\hat{\\chi}$", "$\\text{BPA}$"]
@@ -154,8 +154,11 @@ mlr_schoepfer = make_pipeline(StandardScaler(), BayesianRidge())
 # mlr_schoepfer = make_pipeline(LinearRegression())
 # mlr_schoepfer = make_pipeline(PreFittedRegression([1.0,1.0], 0.0))
 
-
-exp = "lau"  # "lau", "wang", or "schoepfer"
+import sys
+if len(sys.argv) > 1:
+    exp = sys.argv[1]
+else:
+    exp = "lau"  # "lau", "wang", or "schoepfer"
 
 additional_name = ""
 
@@ -214,9 +217,9 @@ results["mae_loo"] = mean_absolute_error(data.y, y_loo_preds)
 results["mse_loo"] = mean_squared_error(data.y, y_loo_preds)
 results["rmse_loo"] = np.sqrt(results["mse_loo"])
 
-j_scores, j_coefs = jackknife(mlr, data.X[selected_features], data.y, scoring="neg_root_mean_squared_error")
+j_scores, j_coefs = jackknife(mlr, data.X[selected_features], data.y, scoring="neg_mean_squared_error")
 
-results["jackknife_score"] = j_scores
+results["jackknife_score"] = np.sqrt(np.abs(j_scores))
 results["jackknife_coefs"] = j_coefs
 
 
@@ -465,17 +468,17 @@ results["vif"] = vif_values
 
 
 scorings = [
-    TestScore(LeavePOut(1), "neg_root_mean_squared_error"),
-    TestScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_root_mean_squared_error"),
-    DiffScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_root_mean_squared_error"),
-    YRandomization(),
+    TestScore(LeavePOut(1), "neg_mean_squared_error"),
+    TestScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"),
+    DiffScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"),
+    YRandomization(random_state=42),
 ]
 
 scoring_names = [
-    "rmse_loo_2",
-    "rmse_lomo",
-    "diff_lomo",
-    "y_randomization",
+    "mse_loo_2",
+    "mse_lomo",
+    "mse_diff_lomo",
+    "y_randomization_mse",
 ]
 
 for i, scoring in enumerate(scorings):
@@ -557,11 +560,11 @@ ax.set_ylim(-1, rows + 1)
 ax.set_xlim(0, cols + 0.5)
 
 metrics_to_plot = [
-    ("$RMSE_{LOMO} \\downarrow$", f"{abs(results['rmse_lomo']):.3f}"),
-    ("$\Delta RMSE_{LOMO} \\downarrow$", f"{abs(results['diff_lomo']):.3f}"),
+    ("$RMSE_{LOMO} \\downarrow$", f"{np.sqrt(np.abs(results['mse_lomo'])):.3f}"),
+    ("$\Delta RMSE_{LOMO} \\downarrow$", f"{np.sqrt(np.abs(results['mse_diff_lomo'])):.3f}"),
     ("Jack. score $\\downarrow$", f"{results['jackknife_score']:.3f}"),
     ("Jack. coef. $\\downarrow$", f"{results['jackknife_coefs']:.3f}"),
-    ("Y-Rand. $\\uparrow$", f"{results['y_randomization']:.3f}"),
+    ("Y-Rand. $\\uparrow$", f"{np.sqrt(np.abs(results['y_randomization_mse'])):.3f}"),
 ]
 
 for idx, (label, value) in enumerate(metrics_to_plot):

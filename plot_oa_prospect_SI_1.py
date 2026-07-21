@@ -316,10 +316,10 @@ for exp in experiments:
 	reafs_results = reafs_base_evaluator()(model_reafs, X_train, y_train, X_test, y_test)
 
 	scorings = {
-		"rmse_lomo": TestScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_root_mean_squared_error"),
-		"delta_rmse_lomo": DiffScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_root_mean_squared_error"),
-		"y_randomization_mae": YRandomization(scoring="neg_mean_absolute_error"),
-		"y_randomization_rmse": YRandomization(scoring="neg_root_mean_squared_error"),
+		"mse_lomo": TestScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"),
+		"delta_mse_lomo": DiffScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"),
+		"y_randomization_mae": YRandomization(scoring="neg_mean_absolute_error", random_state=42),
+		"y_randomization_mse": YRandomization(random_state=42),
 	}
 
 	corr_train = custom_correlation_matrix(X_train)
@@ -355,11 +355,11 @@ for exp in experiments:
 		"mae_loo_train": float(mean_absolute_error(y_train, y_loo_preds)),
 		"r2_test": float(r2_score(y_test, y_test_preds)),
 		"mae_test": float(mean_absolute_error(y_test, y_test_preds)),
-		"rmse_lomo": float(scorings["rmse_lomo"](model, X_train, y_train)),
-		"delta_rmse_lomo": float(scorings["delta_rmse_lomo"](model, X_train, y_train)),
+		"rmse_lomo": float(np.sqrt(np.abs(scorings["mse_lomo"](model, X_train, y_train)))),
+		"delta_rmse_lomo": float(np.sqrt(np.abs(scorings["delta_mse_lomo"](model, X_train, y_train)))),
 		"y_randomization_mae": float(scorings["y_randomization_mae"](model, X_train, y_train)),
-		"y_randomization_rmse": float(scorings["y_randomization_rmse"](model, X_train, y_train)),
-		"jackknife_score": float(j_scores),
+		"y_randomization_rmse": float(np.sqrt(np.abs(scorings["y_randomization_mse"](model, X_train, y_train)))),
+		"jackknife_score": float(np.sqrt(np.abs(j_scores))),
 		"jackknife_coef": float(j_coefs),
 		"noise_resilience_score": float(nr_score),
 		"noise_resilience_coef": float(nr_coef),

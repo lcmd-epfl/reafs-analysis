@@ -53,6 +53,19 @@ lookup_dataset_size = {
     "wang2023_ti": 21,
 }
 
+tab10_new_c =[
+    "#4E79A7",
+    "#F28E2B",
+    "#E15759",
+    "#76B7B2",
+    "#59A14F",
+    "#EDC949",
+    "#B07AA1",
+    "#FF9DA7",
+    "#9C755F",
+    "#BAB0AC",
+]
+
 # Add dataset size column for complexity calculation
 dataf_c["dataset_size"] = dataf_c["dataset_name"].map(lookup_dataset_size)
 
@@ -72,7 +85,7 @@ dataf_cc = pd.concat((fs_methods,ranks_per_method,raw_complexity),axis=1).groupb
 dataf_cc.to_csv("results/fs_bench_seqs_1_0.csv", index=False)
 
 metrics = ["composite", "accuracy", "cv_r2", "cv_spearman"]
-labels = ["Composite", "Recall", "$Q^2_t$", "$r_{st}$"]
+labels = ["$S_{\\mathrm{ReaFS}}$", "$R$", "$Q^2_t$", "$r_{st}$"]
 
 
 fig, axes = plt.subplots(2, 2, figsize=(6, 5), sharey=True, sharex=True)
@@ -83,13 +96,13 @@ for ax, metric, label in zip(axes, metrics, labels):
     scores = dataf_cc[metric]
 
     # Create the scatter plot
-    scatter = ax.scatter(complexity, scores, color="#007480", label="Variants")
-    vanilla = ax.scatter(complexity.iloc[102], scores.iloc[102], color="#ff0000", label="Base Seq.", s=90, marker='X')
-    best_com = ax.scatter(complexity.iloc[282], scores.iloc[282], color="#b51f1f", label="Best Composite", s=90, marker='P')
-    best_sum = ax.scatter(complexity.iloc[135], scores.iloc[135], color="#f39869", label="Best Rank Sum", s=50, marker='s')
-    best_rec = ax.scatter(complexity.iloc[365], scores.iloc[365], color="#00a79f", label="Best Recall", s=50, marker='v')
-    best_r2t = ax.scatter(complexity.iloc[371], scores.iloc[371], color="#c2ddb0", label="Best $Q^2_t$", s=50, marker='^')
-    best_rst = ax.scatter(complexity.iloc[195], scores.iloc[195], color="#cac7c7", label="Best $r_{st}$", s=50, marker='<')
+    scatter = ax.scatter(complexity, scores, color=tab10_new_c[3], label="Variants")
+    vanilla = ax.scatter(complexity.iloc[102], scores.iloc[102], color=tab10_new_c[2], label="Base Seq.", s=90, marker='X', ec="#505050")
+    best_com = ax.scatter(complexity.iloc[282], scores.iloc[282], color=tab10_new_c[1], label="Best $S_{\\mathrm{ReaFS}}$", s=90, marker='P', ec="#505050")
+    best_sum = ax.scatter(complexity.iloc[135], scores.iloc[135], color=tab10_new_c[0], label="Best Rank Sum", s=50, marker='s', ec="#505050")
+    best_rec = ax.scatter(complexity.iloc[365], scores.iloc[365], color=tab10_new_c[4], label="Best $R$", s=50, marker='v', ec="#505050")
+    best_r2t = ax.scatter(complexity.iloc[371], scores.iloc[371], color=tab10_new_c[5], label="Best $Q^2_t$", s=50, marker='^', ec="#505050")
+    best_rst = ax.scatter(complexity.iloc[195], scores.iloc[195], color=tab10_new_c[6], label="Best $r_{st}$", s=50, marker='<', ec="#505050")
 
 
     # Customize the plot

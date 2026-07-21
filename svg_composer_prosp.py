@@ -134,7 +134,12 @@ class SVGCanvas:
 CANVAS_WIDTH = 880
 CANVAS_HEIGHT = 320
 
-EXP = "2"  # Used for file naming, e.g. "model_prospect_parity_plot_{EXP}_{ADDITIONAL_NAME}.svg"
+import sys
+if len(sys.argv) > 1:
+    EXP = sys.argv[1]
+else:
+    EXP = "2"  # Used for file naming, e.g. "model_prospect_parity_plot_{EXP}_{ADDITIONAL_NAME}.svg"
+
 ADDITIONAL_NAME = ""
 
 # Output file
@@ -146,7 +151,7 @@ SVG_FILES = [
     (Path(f"results/model_prospect_parity_plot_{EXP}{ADDITIONAL_NAME}.svg"), 20, 0),
     (Path(f"results/model_prospect_pca_projection_{EXP}{ADDITIONAL_NAME}.svg"), 584, 0),
     (Path(f"results/model_prospect_reafs_table_{EXP}{ADDITIONAL_NAME}.svg"), 170, 0),
-    (Path(f"results/model_prospect_validation_table_{EXP}{ADDITIONAL_NAME}.svg"), 330, 30),
+    (Path(f"results/model_prospect_validation_table_{EXP}{ADDITIONAL_NAME}.svg"), 330, 20),
     (Path(f"results/model_prospect_vif_table_{EXP}{ADDITIONAL_NAME}.svg"), 232, 160),
     (Path(f"results/model_prospect_equation_{EXP}{ADDITIONAL_NAME}.svg"), 265, 185),
 ]

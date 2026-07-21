@@ -48,6 +48,9 @@ print("LAU2021:", data_lau.X.shape, data_lau.y.shape)
 print("WANG2023_ADI:", data_wang.X.shape, data_wang.y.shape)
 print("SCHOEPFER2023_CC:", data_schoepfer.X.shape, data_schoepfer.y.shape)
 
+# dataset_names = ["Lau2021", "Wang2023_ADI", "Schoepfer2023_CC"]
+dataset_names = ["CC-O", "CC-R", "CC-BL"]
+
 ligand_classes = {
     "non-BnBiOx": [0, 1, 2, 3, 4, 5, 6, 7, 8],
     "BnBiOx": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
@@ -78,11 +81,15 @@ epfl_cmap = ListedColormap(epfl_colors_c)
 lig_class_cmap = ListedColormap(epfl_colors_c[0:3])
 
 if len(sys.argv) < 2:
-    raise ValueError("Error: MODE argument required. Usage: python plot_cc_model_cards_SI_1.py [ms|mi]")
+    raise ValueError(
+        "Error: MODE argument required. Usage: python plot_cc_model_cards_SI_1.py [ms|mi]"
+    )
 
 MODE = sys.argv[1]
 if MODE not in ["ms", "mi"]:
-    raise ValueError(f"Error: MODE must be 'ms' or 'mi', got '{MODE}'. Usage: python plot_cc_model_cards_SI_1.py [ms|mi]")
+    raise ValueError(
+        f"Error: MODE must be 'ms' or 'mi', got '{MODE}'. Usage: python plot_cc_model_cards_SI_1.py [ms|mi]"
+    )
 
 if MODE == "ms":
     selected_features_lau = ["Pol", "NBON1", "NBOC4"]
@@ -300,7 +307,7 @@ axes[0].set_xticks([])
 axes[0].set_yticks([])
 
 axes[0].set_title(
-    f"Lau2021 PCA \n(2 PCs: {np.sum(pca_lau_expl_var) * 100:.1f}% var)",
+    f"{dataset_names[0]} PCA \n(2 PCs: {np.sum(pca_lau_expl_var) * 100:.1f}% var)",
     fontweight="bold",
 )
 
@@ -336,7 +343,7 @@ axes[1].set_ylabel(f"PC2 ({pca_wang_expl_var[1] * 100:.1f}% var)")
 axes[1].set_xticks([])
 axes[1].set_yticks([])
 axes[1].set_title(
-    f"Wang2023 PCA \n(2 PCs: {np.sum(pca_wang_expl_var) * 100:.1f}% var)",
+    f"{dataset_names[1]} PCA \n(2 PCs: {np.sum(pca_wang_expl_var) * 100:.1f}% var)",
     fontweight="bold",
 )
 
@@ -377,7 +384,7 @@ axes[2].set_ylabel(f"PC2 ({pca_schoepfer_expl_var[1] * 100:.1f}% var)")
 axes[2].set_xticks([])
 axes[2].set_yticks([])
 axes[2].set_title(
-    f"Schoepfer2023 PCA \n(2 PCs: {np.sum(pca_schoepfer_expl_var) * 100:.1f}% var)",
+    f"{dataset_names[2]} PCA \n(2 PCs: {np.sum(pca_schoepfer_expl_var) * 100:.1f}% var)",
     fontweight="bold",
 )
 
@@ -463,7 +470,7 @@ axes[0].set_ylabel("PLS LV2")
 axes[0].set_xticks([])
 axes[0].set_yticks([])
 axes[0].set_title(
-    f"Lau2021 PLS (R²={pls_lau_model.score(StandardScaler().fit_transform(data_lau.X[selected_features_lau]), data_lau.y):.3f})",
+    f"{dataset_names[0]} PLS (R²={pls_lau_model.score(StandardScaler().fit_transform(data_lau.X[selected_features_lau]), data_lau.y):.3f})",
     fontweight="bold",
 )
 
@@ -492,7 +499,7 @@ axes[1].set_ylabel("PLS LV2")
 axes[1].set_xticks([])
 axes[1].set_yticks([])
 axes[1].set_title(
-    f"Wang2023 PLS (R²={pls_wang_model.score(StandardScaler().fit_transform(data_wang.X[selected_features_wang]), data_wang.y):.3f})",
+    f"{dataset_names[1]} PLS (R²={pls_wang_model.score(StandardScaler().fit_transform(data_wang.X[selected_features_wang]), data_wang.y):.3f})",
     fontweight="bold",
 )
 
@@ -526,7 +533,7 @@ axes[2].set_ylabel("PLS LV2")
 axes[2].set_xticks([])
 axes[2].set_yticks([])
 axes[2].set_title(
-    f"Schoepfer2023 PLS (R²={pls_schoepfer_model.score(StandardScaler().fit_transform(data_schoepfer.X[selected_features_schoepfer]), data_schoepfer.y):.3f})",
+    f"{dataset_names[2]} PLS (R²={pls_schoepfer_model.score(StandardScaler().fit_transform(data_schoepfer.X[selected_features_schoepfer]), data_schoepfer.y):.3f})",
     fontweight="bold",
 )
 
@@ -589,15 +596,15 @@ schoepfer_components, schoepfer_train_r2, schoepfer_cv_r2 = compute_pls_r2_curve
 print("PLS R² by number of components (train / LOOCV)")
 for i, n_comp in enumerate(lau_components):
     print(
-        f"Lau2021 n_comp={n_comp}: train={lau_train_r2[i]:.4f}, LOOCV={lau_cv_r2[i]:.4f}"
+        f"{dataset_names[0]} n_comp={n_comp}: train={lau_train_r2[i]:.4f}, LOOCV={lau_cv_r2[i]:.4f}"
     )
 for i, n_comp in enumerate(wang_components):
     print(
-        f"Wang2023 n_comp={n_comp}: train={wang_train_r2[i]:.4f}, LOOCV={wang_cv_r2[i]:.4f}"
+        f"{dataset_names[1]} n_comp={n_comp}: train={wang_train_r2[i]:.4f}, LOOCV={wang_cv_r2[i]:.4f}"
     )
 for i, n_comp in enumerate(schoepfer_components):
     print(
-        f"Schoepfer2023 n_comp={n_comp}: train={schoepfer_train_r2[i]:.4f}, LOOCV={schoepfer_cv_r2[i]:.4f}"
+        f"{dataset_names[2]} n_comp={n_comp}: train={schoepfer_train_r2[i]:.4f}, LOOCV={schoepfer_cv_r2[i]:.4f}"
     )
 
 fig, axes = plt.subplots(1, 3, figsize=(14, 4), sharey=True)
@@ -620,7 +627,7 @@ axes[0].plot(
 )
 axes[0].set_xlabel("Number of PLS latent variables")
 axes[0].set_ylabel("R²")
-axes[0].set_title("Lau2021 PLS", fontweight="bold")
+axes[0].set_title(f"{dataset_names[0]} PLS", fontweight="bold")
 axes[0].grid(alpha=0.3, linestyle="--")
 axes[0].legend(loc="best")
 
@@ -642,7 +649,7 @@ axes[1].plot(
 )
 axes[1].set_xlabel("Number of PLS latent variables")
 axes[1].set_ylabel("R²")
-axes[1].set_title("Wang2023 PLS", fontweight="bold")
+axes[1].set_title(f"{dataset_names[1]} PLS", fontweight="bold")
 axes[1].grid(alpha=0.3, linestyle="--")
 axes[1].legend(loc="best")
 
@@ -664,7 +671,7 @@ axes[2].plot(
 )
 axes[2].set_xlabel("Number of PLS latent variables")
 axes[2].set_ylabel("R²")
-axes[2].set_title("Schoepfer2023 PLS", fontweight="bold")
+axes[2].set_title(f"{dataset_names[2]} PLS", fontweight="bold")
 axes[2].grid(alpha=0.3, linestyle="--")
 axes[2].legend(loc="best")
 
@@ -792,7 +799,7 @@ axes[0].text(
 )
 axes[0].set_xlabel("Pairwise distance in X")
 axes[0].set_ylabel("Pairwise distance in y")
-axes[0].set_title("Lau2021 X vs y distances", fontweight="bold")
+axes[0].set_title(f"{dataset_names[0]} X vs y distances", fontweight="bold")
 axes[0].legend(loc="lower right")
 
 axes[1].scatter(dist_X_wang, dist_y_wang, s=12, alpha=0.6)
@@ -825,7 +832,7 @@ axes[1].text(
 )
 axes[1].set_xlabel("Pairwise distance in X")
 axes[1].set_ylabel("Pairwise distance in y")
-axes[1].set_title("Wang2023 X vs y distances", fontweight="bold")
+axes[1].set_title(f"{dataset_names[1]} X vs y distances", fontweight="bold")
 axes[1].legend(loc="lower right")
 
 axes[2].scatter(dist_X_schoepfer, dist_y_schoepfer, s=12, alpha=0.6)
@@ -860,7 +867,7 @@ axes[2].text(
 )
 axes[2].set_xlabel("Pairwise distance in X")
 axes[2].set_ylabel("Pairwise distance in y")
-axes[2].set_title("Schoepfer2023 X vs y distances", fontweight="bold")
+axes[2].set_title(f"{dataset_names[2]} X vs y distances", fontweight="bold")
 axes[2].legend(loc="lower right")
 
 # plt.tight_layout()
@@ -878,9 +885,18 @@ vif_lau = compute_vif(data_lau.X[selected_features_lau])
 vif_wang = compute_vif(data_wang.X[selected_features_wang])
 vif_schoepfer = compute_vif(data_schoepfer.X[selected_features_schoepfer])
 
-print("Lau2021 VIF:", {k: round(v, 3) if isinstance(v, float) else v for k, v in vif_lau.items()})
-print("Wang2023 VIF:", {k: round(v, 3) if isinstance(v, float) else v for k, v in vif_wang.items()})
-print("Schoepfer2023 VIF:", {k: round(v, 3) if isinstance(v, float) else v for k, v in vif_schoepfer.items()})
+print(
+    f"{dataset_names[0]} VIF:",
+    {k: round(v, 3) if isinstance(v, float) else v for k, v in vif_lau.items()},
+)
+print(
+    f"{dataset_names[1]} VIF:",
+    {k: round(v, 3) if isinstance(v, float) else v for k, v in vif_wang.items()},
+)
+print(
+    f"{dataset_names[2]} VIF:",
+    {k: round(v, 3) if isinstance(v, float) else v for k, v in vif_schoepfer.items()},
+)
 
 ###
 # Correlation matrices
@@ -893,19 +909,25 @@ corr_schoepfer = custom_correlation_matrix(
 )
 
 # Max absolute off-diagonal correlation values
-print("LAU2021 Max Correlation Matrix:\n", highest_absolute_off_diagonal(corr_lau))
+lau_max_corr = highest_absolute_off_diagonal(corr_lau)
+wang_max_corr = highest_absolute_off_diagonal(corr_wang)
+schoepfer_max_corr = highest_absolute_off_diagonal(corr_schoepfer)
+
+print(f"{dataset_names[0]} Max Correlation Matrix:\n", lau_max_corr)
+print(f"{dataset_names[1]} Max Correlation Matrix:\n", wang_max_corr)
 print(
-    "WANG2023_ADI Max Correlation Matrix:\n", highest_absolute_off_diagonal(corr_wang)
-)
-print(
-    "SCHOEPFER2023_CC Max Correlation Matrix:\n",
-    highest_absolute_off_diagonal(corr_schoepfer),
+    f"{dataset_names[2]} Max Correlation Matrix:\n",
+    schoepfer_max_corr,
 )
 
 # Determinant of Correlation matrices
-print("LAU2021 Correlation Matrix Determinant:", np.linalg.det(corr_lau))
-print("WANG2023_ADI Correlation Matrix Determinant:", np.linalg.det(corr_wang))
-print("SCHOEPFER2023_CC Correlation Matrix Determinant:", np.linalg.det(corr_schoepfer))
+lau_det = np.linalg.det(corr_lau)
+wang_det = np.linalg.det(corr_wang)
+schoepfer_det = np.linalg.det(corr_schoepfer)
+
+print(f"{dataset_names[0]} Correlation Matrix Determinant:", lau_det)
+print(f"{dataset_names[1]} Correlation Matrix Determinant:", wang_det)
+print(f"{dataset_names[2]} Correlation Matrix Determinant:", schoepfer_det)
 
 
 ###
@@ -936,20 +958,24 @@ def compute_regression_metrics(model, X, y):
 
     # LOMO RMSE (uses TestScore wrapper returning negative RMSE by convention)
     try:
-        metrics["rmse_lomo"] = abs(
-            TestScore(
-                LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_root_mean_squared_error"
-            )(model, X, y)
+        metrics["rmse_lomo"] = np.sqrt(
+            np.abs(
+                TestScore(
+                    LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"
+                )(model, X, y)
+            )
         )
     except Exception:
         metrics["rmse_lomo"] = np.nan
 
     # LOMO RMSE (uses DiffScore wrapper returning negative RMSE by convention)
     try:
-        metrics["rmse_diff_lomo"] = abs(
-            DiffScore(
-                LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_root_mean_squared_error"
-            )(model, X, y)
+        metrics["rmse_diff_lomo"] = np.sqrt(
+            np.abs(
+                DiffScore(
+                    LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"
+                )(model, X, y)
+            )
         )
     except Exception:
         metrics["rmse_diff_lomo"] = np.nan
@@ -959,9 +985,11 @@ def compute_regression_metrics(model, X, y):
         metrics["mae_y_random"] = YRandomization(
             scoring="neg_mean_absolute_error", random_state=42
         )(model, X, y)
-        metrics["rmse_y_random"] = abs(
-            YRandomization(scoring="neg_root_mean_squared_error", random_state=42)(
-                model, X, y
+        metrics["rmse_y_random"] = np.sqrt(
+            np.abs(
+                YRandomization(scoring="neg_mean_squared_error", random_state=42)(
+                    model, X, y
+                )
             )
         )
     except Exception:
@@ -970,10 +998,8 @@ def compute_regression_metrics(model, X, y):
 
     # Jackknife (prefer RMSE-based jackknife when available)
     try:
-        jk_score, jk_coefs = jackknife(
-            model, X, y, scoring="neg_root_mean_squared_error"
-        )
-        metrics["jackknife_score"] = jk_score
+        jk_score, jk_coefs = jackknife(model, X, y, scoring="neg_mean_squared_error")
+        metrics["jackknife_score"] = np.sqrt(np.abs(jk_score))
         metrics["jackknife_coefs"] = jk_coefs
     except Exception:
         metrics["jackknife_score"] = np.nan
@@ -1005,15 +1031,15 @@ metrics_schoepfer = compute_regression_metrics(
     mlr_schoepfer, data_schoepfer.X[selected_features_schoepfer], data_schoepfer.y
 )
 
-print("LAU2021 metrics:", metrics_lau)
-print("WANG2023 metrics:", metrics_wang)
-print("SCHOEPFER2023 metrics:", metrics_schoepfer)
+print(f"{dataset_names[0]} metrics:", metrics_lau)
+print(f"{dataset_names[1]} metrics:", metrics_wang)
+print(f"{dataset_names[2]} metrics:", metrics_schoepfer)
 
 # Small summary table (RMSE / RMSE_LOO / RMSE_LOMO)
 fig, ax = plt.subplots(figsize=(8, 4))
 ax.axis("off")
 
-cols = ["LAU2021", "WANG2023", "SCHOEPFER2023"]
+cols = [dataset_names[0], dataset_names[1], dataset_names[2]]
 rows = [
     "r2_train",
     "r2_loo",
@@ -1080,29 +1106,28 @@ laplacian_schoepfer = laplacian_score(data_schoepfer.X)
 
 # Check the values for the selected features of each dataset and compute their relative ranking within the full feature set of each dataset
 print(
-    f"LAU2021 MAX: f_reg={np.max(f_reg_lau):.3f}, mi={np.max(mi_lau):.3f}, laplacian={np.max(laplacian_lau):.3f}"
+    f"{dataset_names[0]} MAX: f_reg={np.max(f_reg_lau):.3f}, mi={np.max(mi_lau):.3f}, laplacian={np.max(laplacian_lau):.3f}"
 )
 for feature in selected_features_lau:
     idx = data_lau.X.columns.get_loc(feature)
     print(
-        f"LAU2021 - {feature}: f_reg={f_reg_lau[idx]:.3f}, mi={mi_lau[idx]:.3f}, laplacian={laplacian_lau[idx]:.3f}"
+        f"{dataset_names[0]} - {feature}: f_reg={f_reg_lau[idx]:.3f}, mi={mi_lau[idx]:.3f}, laplacian={laplacian_lau[idx]:.3f}"
     )
 
 print(
-    f"WANG2023_ADI MAX: f_reg={np.max(f_reg_wang):.3f}, mi={np.max(mi_wang):.3f}, laplacian={np.max(laplacian_wang):.3f}"
+    f"{dataset_names[1]} MAX: f_reg={np.max(f_reg_wang):.3f}, mi={np.max(mi_wang):.3f}, laplacian={np.max(laplacian_wang):.3f}"
 )
 for feature in selected_features_wang:
     idx = data_wang.X.columns.get_loc(feature)
     print(
-        f"WANG2023_ADI - {feature}: f_reg={f_reg_wang[idx]:.3f}, mi={mi_wang[idx]:.3f}, laplacian={laplacian_wang[idx]:.3f}"
+        f"{dataset_names[1]} - {feature}: f_reg={f_reg_wang[idx]:.3f}, mi={mi_wang[idx]:.3f}, laplacian={laplacian_wang[idx]:.3f}"
     )
 
 print(
-    f"SCHOEPFER2023_CC MAX: f_reg={np.max(f_reg_schoepfer):.3f}, mi={np.max(mi_schoepfer):.3f}, laplacian={np.max(laplacian_schoepfer):.3f}"
+    f"{dataset_names[2]} MAX: f_reg={np.max(f_reg_schoepfer):.3f}, mi={np.max(mi_schoepfer):.3f}, laplacian={np.max(laplacian_schoepfer):.3f}"
 )
 for feature in selected_features_schoepfer:
     idx = data_schoepfer.X.columns.get_loc(feature)
     print(
-        f"SCHOEPFER2023_CC - {feature}: f_reg={f_reg_schoepfer[idx]:.3f}, mi={mi_schoepfer[idx]:.3f}, laplacian={laplacian_schoepfer[idx]:.3f}"
+        f"{dataset_names[2]} - {feature}: f_reg={f_reg_schoepfer[idx]:.3f}, mi={mi_schoepfer[idx]:.3f}, laplacian={laplacian_schoepfer[idx]:.3f}"
     )
-

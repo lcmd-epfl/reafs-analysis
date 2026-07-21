@@ -82,6 +82,14 @@ data_c["complexity"] = data_c["n_features"] / data_c["dataset_size"]
 # Drop the temporary 'dataset_size' column
 data_c.drop(columns=["dataset_size"], inplace=True)
 
+# Post correction of composite due to undefined cv_spearman values
+data_c.loc[data_c["cv_spearman"] == -2, "composite"] = (data_c.loc[data_c["cv_spearman"] == -2, "composite"] * 3) / 2
+
+# Treat undefined cv_spearman values as missing so they are ignored in rank/median
+data_c.loc[data_c["cv_spearman"] == -2, "cv_spearman"] = np.nan
+
+
+
 # Compute ranks for each method within each dataset and target
 ranks_per_method = data_c.groupby(
     ["dataset_name", "dataset_i_target", "dataset_i_direction"]
@@ -147,7 +155,7 @@ ax.bar(
     color="#007480",
     hatch="",
     zorder=1,
-    label="Composite",
+    label="$S_{\mathrm{ReaFS}}$",
 )
 ax.bar(
     x_positions - 0.1,
@@ -157,7 +165,7 @@ ax.bar(
     color="#b51f1f",
     hatch="//",
     zorder=1,
-    label="Recall",
+    label="$R$",
 )
 ax.bar(
     x_positions + 0.1,
@@ -198,7 +206,7 @@ plt.show()
 # -----------------------------
 
 metrics = ["composite", "accuracy", "cv_r2", "cv_spearman"]
-labels = ["Composite", "Recall", "$Q^2_t$", "$r_{st}$"]
+labels = ["$S_{\mathrm{ReaFS}}$", "$R$", "$Q^2_t$", "$r_{st}$"]
 
 epfl_colors_c = [
     "#00A79F",
@@ -212,7 +220,40 @@ epfl_colors_c = [
     "#C8D300",
 ]
 
-markers = ["o", "X", "s", "^", "D", "v", "P", "*", "<", ">"]
+tab10_new_c =[
+    "#4E79A7",
+    "#F28E2B",
+    "#E15759",
+    "#76B7B2",
+    "#59A14F",
+    "#EDC949",
+    "#B07AA1",
+    "#FF9DA7",
+    "#9C755F",
+    "#BAB0AC",
+]
+
+tab20_custom = [
+    "#4E79A7",
+    "#A5BCD5",
+    "#F28E2B",
+    "#F9CC9F",
+    "#E15759",
+    "#F4C2C3",
+    "#76B7B2",
+    "#C1E1DF",
+    "#59A14F",
+    "#A8D2A3",
+    "#EDC949",
+    "#F8EAB9",
+    "#B07AA1",
+    "#DFC9D9"
+
+]
+
+color_order = [0, 2, 1, 3, 4, 5, 6, 7, 8, 9]
+
+markers = ["o", "X", "s", "^", "D", "v", "P", "*", "<", ">", "p", "h", "d", "H", "8", "."]
 
 fig, axes = plt.subplots(2, 2, figsize=(6, 5), sharey=True, sharex=True)
 axes = axes.flatten()
@@ -221,36 +262,17 @@ for ax, metric, label in zip(axes, metrics, labels):
     complexity = data_cc["raw_complexity"].iloc[order]
     scores = data_cc[metric].iloc[order]
 
-    fi = 1
     # Create the scatter plot point-by-point because matplotlib only accepts
     # one marker style per scatter call.
     for i, (x, y) in enumerate(zip(complexity, scores)):
         ax.scatter(
             x,
             y,
-            color=epfl_colors_c[i],
+            color=tab10_new_c[color_order[i]],
             marker=markers[i],
-            s=60
+            s=60,
+            ec="#505050",
         )
-    # vanilla = ax.scatter(
-    #     complexity.iloc[fi],
-    #     scores.iloc[fi],
-    #     color="#ff0000",
-    #     label="Base Seq.",
-    #     s=90,
-    #     marker="X",
-    # )
-
-    # Annotate each point with its corresponding label
-    # for i, l in enumerate(x_labels):
-    #     ax.annotate(
-    #         l,
-    #         (complexity.iloc[i], scores.iloc[i]),
-    #         fontsize=10,
-    #         xytext=(5, 5),
-    #         textcoords="offset points",
-    #         clip_on=False,
-    #     )
 
     sorted_indices = np.argsort(complexity)
     pareto_front = np.minimum.accumulate(scores.iloc[sorted_indices])

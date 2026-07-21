@@ -120,8 +120,11 @@ def stepwise_fs_selector(X, y, split_train):
     selected_features_idx = [X.columns.get_loc(col) for col in selected_features_names]
 
     return selected_features_idx
-
-exp_i = 2
+import sys
+if len(sys.argv) > 1:
+    exp_i = int(sys.argv[1])
+else:
+    exp_i = 2
 
 if exp_i == 0:
     selected_features = stepwise_fs_selector(data.X, data.y, split_train)
@@ -178,7 +181,7 @@ reafs_results = reafs_base_evaluator()(mlr_base, X_train, y_train, X_test, y_tes
 
 j_scores, j_coefs = jackknife(mlr_base, X_train, y_train, scoring="neg_mean_squared_error")
 
-results["jackknife_score"] = j_scores
+results["jackknife_score"] = np.sqrt(np.abs(j_scores))
 results["jackknife_coefs"] = j_coefs
 
 # parity plot
@@ -425,18 +428,23 @@ scorings = [
     TestScore(LeavePOut(1), "neg_mean_squared_error"),
     TestScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"),
     DiffScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_mean_squared_error"),
-    YRandomization(),
+    YRandomization(random_state=42),
 ]
 
 scoring_names = [
     "mse_loo_2",
     "mse_lomo",
     "diff_lomo",
-    "y_randomization",
+    "y_randomization_mse",
 ]
 
 for i, scoring in enumerate(scorings):
     results[scoring_names[i]] = scoring(mlr_base, X_train, y_train)
+
+###
+print("debug")
+print(TestScore(LeaveOneMoreOut(n_repeats=5, n_min=1), "neg_root_mean_squared_error")(mlr_base, X_train, y_train))
+print(np.sqrt(np.abs(results["mse_lomo"])))
 
 corr = custom_correlation_matrix(X_train)
 
@@ -493,7 +501,8 @@ metrics_to_plot = [
     ("$\\Delta RMSE_{LOMO} \\downarrow$", f"{np.sqrt(np.abs(results['diff_lomo'])):.3f}"),
     ("Jack. score $\\downarrow$", f"{results['jackknife_score']:.3f}"),
     ("Jack. coef. $\\downarrow$", f"{results['jackknife_coefs']:.3f}"),
-    ("Y-Rand. $\\uparrow$", f"{results['y_randomization']:.3f}"),
+    ("Y-Rand. $\\uparrow$", f"{np.sqrt(np.abs(results['y_randomization_mse'])):.3f}"),
+    ("Dist. $R^2 \\uparrow$", f"{results['distance_correlation']:.3f}"),
 ]
 
 rows = len(metrics_to_plot) - 1
@@ -516,14 +525,16 @@ plt.show()
 
 # reafs table
 
+reafs_u = (reafs_results['accuracy'] + reafs_results['cv_r2'] + reafs_results['cv_spearman']) / 3
+
 reafs_metrics_to_plot = [
     ("$S_{\\text{ReaFS}} \\uparrow$", f"{reafs_results['composite']:.3f}"),
+    ("$uS_{\\text{ReaFS}} \\uparrow$", f"{reafs_u:.3f}"),
     ("R $\\uparrow$", f"{reafs_results['accuracy']:.3f}"),
     ("$Q^2_t \\uparrow$", f"{reafs_results['cv_r2']:.3f}"),
     ("$r_{st} \\uparrow$", f"{reafs_results['cv_spearman']:.3f}"),
     ("Max $\\rho \\downarrow$", f"{results['max_abs_corr']:.3f}"),
     ("D $\\uparrow$", f"{results['corr_det']:.3f}"),
-    ("Dist. $R^2 \\uparrow$", f"{results['distance_correlation']:.3f}"),
 ]
 
 rows = len(reafs_metrics_to_plot) - 1

@@ -134,7 +134,12 @@ class SVGCanvas:
 CANVAS_WIDTH = 880
 CANVAS_HEIGHT = 320
 
-EXP = "lau"  # Used for file naming, e.g. "model_card_parity_plot_schoepfer_.svg"
+import sys
+if len(sys.argv) > 1:
+    EXP = sys.argv[1]
+else:
+    EXP = "wang"  # Used for file naming, e.g. "model_card_parity_plot_schoepfer_.svg"
+
 ADDITIONAL_NAME = ""
 
 # Output file

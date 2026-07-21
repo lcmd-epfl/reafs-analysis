@@ -22,8 +22,18 @@ rows = []
 
 for dataset in gen_dataset(full_datasets):
     data_ds = from_dataset(*dataset)
-    y_vals_before = np.sort(data_ds.y)[:-5]  # remove top 5 values
-    y_vals_after = np.sort(data_ds.y)
+    y_vals_before = np.sort(data_ds.y, stable=True)[:-5]  # remove top 5 values
+    y_vals_after = np.sort(data_ds.y, stable=True)
+
+    if dataset[0] == "lau2021":
+        print(y_vals_after)
+
+
+    if dataset[0] == "schoepfer2023_cc":
+        print(y_vals_after)
+
+    if dataset[0] == "wang2023_adi":
+        print(y_vals_after)
 
     # clf_ds = LocalOutlierFactor()
     # _ = clf_ds.fit_predict(y_vals_before.reshape(-1, 1))
@@ -101,22 +111,22 @@ lookup_max_features = {
 }
 
 lookup_dataset_size = {
-    "cammarota2022": 25,
-    "dotson2023_sel_pd": 52,
-    "dotson2023_sel_rh": 32,
-    "dotson2023_yield_pd": 33,
-    "dotson2023_yield_rh": 55,
-    "gallarati2022": 101,
-    "gallarati2023": 407,
-    "haas2022": 51,
-    "lau2021": 29,
-    "schoepfer2023_cc": 29,
-    "schoepfer2023_cp": 30,
-    "schoepfer2023_da_f": 30,
-    "schoepfer2023_oa": 19,
-    "souza2023": 88,
-    "wang2023_adi": 29,
-    "wang2023_ti": 21,
+    "cammarota2022": 25, # CHF
+    "dotson2023_sel_pd": 52, # HH
+    "dotson2023_sel_rh": 32, # HF
+    "dotson2023_yield_pd": 33, # HH
+    "dotson2023_yield_rh": 55, # HF
+    "gallarati2022": 101, # CDA
+    "gallarati2023": 407, # PS
+    "haas2022": 51, # CA
+    "lau2021": 29, # CC
+    "schoepfer2023_cc": 29, # CC
+    "schoepfer2023_cp": 30, # CP
+    "schoepfer2023_da_f": 30, # DA
+    "schoepfer2023_oa": 19, # OA
+    "souza2023": 88, # CHI
+    "wang2023_adi": 29, # CC
+    "wang2023_ti": 21, # RCC
 }
 
 # Map the max number of features using the lookup list
@@ -175,56 +185,52 @@ df_merged_mean = df_merged[
 ].groupby(["dataset_name", "dataset_i_target", "dataset_i_direction"], as_index=False).mean()
 
 plot_df = df_merged_mean.copy()
-markers = ["o", "s", "^", "D", "v", "P", "X", "*", "<", ">"]
+markers = ["o", "X", "s", "^", "D", "v", "P", "*", "<", ">", "p", "h", "d", "H", "8", "."]
 
-# Group dataset names by author+year prefix (e.g., dotson2023 from dotson2023_sel_pd)
-plot_df["featurization_strategy"] = (
-    plot_df["dataset_name"]
-    .str.extract(r"^([A-Za-z]+[0-9]{4})", expand=False)
-    .fillna(plot_df["dataset_name"])
-)
+reaction_lookup = {
+    "cammarota2022": "CHF",
+    "dotson2023_sel_pd": "HH",
+    "dotson2023_sel_rh": "HF",
+    "dotson2023_yield_pd": "HH",
+    "dotson2023_yield_rh": "HF",
+    "gallarati2022": "CDA",
+    "gallarati2023": "PS",
+    "haas2022": "AC",
+    "lau2021": "CC",
+    "schoepfer2023_cc": "CC",
+    "schoepfer2023_cp": "CP",
+    "schoepfer2023_da_f": "DA",
+    "schoepfer2023_oa": "OA",
+    "souza2023": "CHI",
+    "wang2023_adi": "CC",
+    "wang2023_ti": "RCC",
+}
 
-strategies = sorted(plot_df["featurization_strategy"].unique())
-cmap_o = plt.get_cmap("tab10")
+plot_df["reaction"] = plot_df["dataset_name"].map(reaction_lookup)
 
-from matplotlib.colors import ListedColormap
+missing_reactions = sorted(plot_df.loc[plot_df["reaction"].isna(), "dataset_name"].unique())
+if missing_reactions:
+    raise ValueError(f"Missing reaction mapping for: {missing_reactions}")
 
-epfl_colors_c = [
-    "#00A79F",
-    "#F39869",
-    "#C2DDB0",
-    "#FF0000",
-    "#5C2483",
-    "#5B3428",
-    "#ED6E9C",
-    "#CAC7C7",
-    "#C8D300",
-    "#4F8FCC",
-    "#EC6608",
-    "#FBEE66",
-    "#B51F1F",
-    "#007480",
-]
-
-cmap = ListedColormap(
-    epfl_colors_c
-)
-
-print(cmap)
+reaction_order = ["CHF", "HH", "HF", "CDA", "PS", "AC", "CC", "CP", "DA", "OA", "CHI", "RCC"]
+tab20_colors = list(plt.get_cmap("tab20").colors)
+reaction_colors = {reaction: tab20_colors[i] for i, reaction in enumerate(reaction_order)}
 
 fig, axes = plt.subplots(1, 3, figsize=(6, 3), sharey=True)
 
-for i, strategy in enumerate(strategies):
-    subset = plot_df[plot_df["featurization_strategy"] == strategy]
+for i, reaction in enumerate(reaction_order):
+    subset = plot_df[plot_df["reaction"] == reaction]
+    if subset.empty:
+        continue
     axes[0].scatter(
         subset["cvg_before"],
         subset["composite"],
-        label=strategy,
+        label=reaction,
         s=100,
         alpha=0.85,
-        color=cmap(i % 10),
+        color=reaction_colors[reaction],
         marker=markers[i % len(markers)],
-        edgecolor=None,
+        ec="#505050",
         linewidth=0.5,
     )
 
@@ -233,17 +239,19 @@ axes[0].set_xlabel("CVG")
 axes[0].set_title("")
 # axes[0].grid(True, alpha=0.3)
 
-for i, strategy in enumerate(strategies):
-    subset = plot_df[plot_df["featurization_strategy"] == strategy]
+for i, reaction in enumerate(reaction_order):
+    subset = plot_df[plot_df["reaction"] == reaction]
+    if subset.empty:
+        continue
     axes[1].scatter(
         subset["qtd_before"],
         subset["composite"],
-        label=strategy,
+        label=reaction,
         s=100,
         alpha=0.85,
-        color=cmap(i % 10),
+        color=reaction_colors[reaction],
         marker=markers[i % len(markers)],
-        edgecolor=None,
+        ec="#505050",
         linewidth=0.5,
     )
 
@@ -252,17 +260,19 @@ axes[1].set_xlabel("80th PTD")
 axes[1].set_title("")
 # axes[1].grid(True, alpha=0.3)
 
-for i, strategy in enumerate(strategies):
-    subset = plot_df[plot_df["featurization_strategy"] == strategy]
+for i, reaction in enumerate(reaction_order):
+    subset = plot_df[plot_df["reaction"] == reaction]
+    if subset.empty:
+        continue
     axes[2].scatter(
         subset["nLOF_top1_before"],
         subset["composite"],
-        label=strategy,
+        label=reaction,
         s=100,
         alpha=0.85,
-        color=cmap(i % 10),
+        color=reaction_colors[reaction],
         marker=markers[i % len(markers)],
-        edgecolor=None,
+        ec="#505050",
         linewidth=0.5,
     )
 
@@ -274,7 +284,7 @@ axes[2].set_title("")
 # axes[0].legend(loc="upper left", ncols=3, frameon=False)
 
 handles, labels = axes[0].get_legend_handles_labels()
-fig.legend(handles, labels, loc="lower center", ncol=3, 
+fig.legend(handles, labels, loc="lower center", ncol=6, 
               bbox_to_anchor=(0.5, -0.3), frameon=False, fontsize=10)
 
 # plt.tight_layout()
@@ -316,17 +326,19 @@ for plot_position, (metric_idx, before_after) in enumerate(plot_sequence):
     col = col_before if before_after == "before" else col_after
     label_suffix = "(Top 5 Removed)" if before_after == "before" else "(All Data)"
     
-    for i, strategy in enumerate(strategies):
-        subset = plot_df[plot_df["featurization_strategy"] == strategy]
+    for i, reaction in enumerate(reaction_order):
+        subset = plot_df[plot_df["reaction"] == reaction]
+        if subset.empty:
+            continue
         ax.scatter(
             subset["composite"],
             subset[col],
-            label=strategy,
+            label=reaction,
             s=100,
             alpha=0.85,
-            color=cmap(i % 10),
+            color=reaction_colors[reaction],
             marker=markers[i % len(markers)],
-            edgecolor=None,
+            ec="#505050",
             linewidth=0.5,
         )
     ax.set_xlabel("$S_\mathrm{ReaFS}$")
@@ -336,7 +348,7 @@ for plot_position, (metric_idx, before_after) in enumerate(plot_sequence):
 
 # Add a single legend at the top
 handles, labels = axes_si[0, 0].get_legend_handles_labels()
-fig_si.legend(handles, labels, loc="lower center", ncol=(len(strategies)+1) // 2, 
+fig_si.legend(handles, labels, loc="lower center", ncol=6, 
               bbox_to_anchor=(0.5, 0.03), frameon=False, fontsize=10)
 
 # Manual spacing control instead of tight_layout
