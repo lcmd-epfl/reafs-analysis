@@ -1,6 +1,6 @@
 # ReaFS Analysis
 
-This repository contains the analysis code to reproduce the results and plots from [the main manuscript and supplementary information](doi.org).
+This repository contains the analysis code to reproduce the results and plots from [the main manuscript and supplementary information](https://doi.org/10.1021/acscatal.6c04292).
 
 ## Setup
 
